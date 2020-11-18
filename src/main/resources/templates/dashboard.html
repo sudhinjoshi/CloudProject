@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{default}"><head>
+  <title>Dashboard</title>
+
+  
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  
+  <style>
+        body {font-family: "Lato", sans-serif;}
+
+        .sidebar {
+            height: 100%;
+            width: 160px;
+            position: fixed;
+            z-index: 1;
+            top: 100;
+            left: 0;
+            background-color: #000000;
+            overflow-x: hidden;
+            padding-top: 16px;
+        }
+
+        .sidebar a {
+            padding: 6px 8px 6px 16px;
+            text-decoration: none;
+            font-size: 20px;
+            color: #818181;
+            display: block;
+        }
+
+        .sidebar a:hover {
+            color: #f1f1f1;
+        }
+
+        .main {
+            margin-left: 160px; /* Same as the width of the sidenav */
+            padding: 0px 10px;
+        }
+
+        @media screen and (max-height: 450px) {
+            .sidebar {padding-top: 15px;}
+            .sidebar a {font-size: 18px;}
+        }
+    </style>
+</head><body>
+<div layout:fragment="content"> <br>
+<div class="sidebar">
+    <a href="/productCreation">Product Creation</a>
+    <a href="/productList">Product List</a>
+    <a href="/productInventory">Inventory Update</a>
+    <a href="/productReports">Report</a>
+</div>
+
+<div class="main">
+<h2>Sidebar with Icons</h2>
+<p>This side navigation is of full height (100%) and always shown.</p>
+<p>Lorem ipsum dolor sit amet, illum definitiones no quo, maluisset
+concludaturque et eum, altera fabulas ut quo. Atqui causae gloriatur
+ius te, id agam omnis evertitur eum. Affert laboramus repudiandae nec
+et. Inciderint efficiantur his ad. Eum no molestiae voluptatibus.</p>
+<p>Lorem ipsum dolor sit amet, illum definitiones no quo, maluisset
+concludaturque et eum, altera fabulas ut quo. Atqui causae gloriatur
+ius te, id agam omnis evertitur eum. Affert laboramus repudiandae nec
+et. Inciderint efficiantur his ad. Eum no molestiae voluptatibus.</p>
+
+    <h1 th:inline="text">Hello [[${#httpServletRequest.remoteUser}]]!</h1>
+    <h2>This is your Admin Dashboard</h2>
+
+</div>
+
+</div>
+
+</body></html>
