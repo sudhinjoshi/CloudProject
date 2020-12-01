@@ -28,6 +28,15 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Optional;
 
+import com.amazonaws.auth.profile.ProfileCredentialsProvider;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.model.AmazonS3Exception;
+import com.amazonaws.services.s3.model.Bucket;
+import com.amazonaws.services.s3.model.CreateBucketRequest;
+
+import java.util.List;
+
 @Controller
 public class ProductController {
 
@@ -44,6 +53,7 @@ public class ProductController {
     private String bucketName;
 
     private static String UPLOADED_FOLDER = "/";
+    private AmazonS3 s3;
 
     @RequestMapping(path = "/download/{fileName}", method = RequestMethod.GET)
     public ResponseEntity<Resource> download(Model model, HttpServletRequest request, @PathVariable String fileName) throws IOException {
@@ -89,7 +99,7 @@ public class ProductController {
     public ModelAndView productCreationPost(@RequestParam String prodName, @RequestParam String prodDesc, @RequestParam float prodPrice,
                                             @RequestParam int prodQuantity, @RequestParam("prodImage") MultipartFile file,
                                             RedirectAttributes redirectAttributes) {
-        System.out.println("productCreation POST: " + prodName);
+        System.out.println("productCreation POST 1: " + prodName);
         ModelAndView modelAndView = new ModelAndView();
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         System.out.println("auth: " + auth.getName());
@@ -99,7 +109,7 @@ public class ProductController {
         product.setProdName(prodName);
         product.setProdDesc(prodDesc);
         product.setProdPrice(prodPrice);
-
+        
         String fileupload = "";
 
         try {
@@ -112,6 +122,18 @@ public class ProductController {
                 product.setProdUrl(file.getOriginalFilename());
                 final File newfile = convertMultiPartFileToFile(file);
                 s3Services.uploadFile(file.getOriginalFilename(), newfile);
+                
+                
+                s3 = AmazonS3ClientBuilder.standard()
+                .withCredentials(new ProfileCredentialsProvider())
+                .withRegion("us-east-1")
+                .build();
+
+                // List current buckets.
+                ListMyBuckets();
+                
+                //upload the file
+                s3.putObject(bucketName, file.getOriginalFilename(), newfile);
 
                 /*
                 // Get the file and save it somewhere
@@ -136,6 +158,15 @@ public class ProductController {
         modelAndView.setViewName("listProduct");
 
         return modelAndView;
+    }
+    
+    private void ListMyBuckets() {
+        List<Bucket> buckets = s3.listBuckets();
+        System.out.println("My buckets now are:");
+
+        for (Bucket b : buckets) {
+            System.out.println(b.getName());
+        }
     }
 
     private File convertMultiPartFileToFile(final MultipartFile multipartFile) {
