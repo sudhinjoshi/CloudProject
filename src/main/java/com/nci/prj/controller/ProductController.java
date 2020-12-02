@@ -21,6 +21,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import com.amazonaws.services.s3.model.S3ObjectInputStream;
+
+import com.amazonaws.services.s3.model.ListObjectsV2Result;
+import com.amazonaws.services.s3.model.S3ObjectSummary;
+import com.amazonaws.services.s3.model.S3Object;
+import org.apache.commons.io.IOUtils;
+import java.net.URLEncoder;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
@@ -36,6 +45,8 @@ import com.amazonaws.services.s3.model.Bucket;
 import com.amazonaws.services.s3.model.CreateBucketRequest;
 
 import java.util.List;
+
+import org.springframework.http.MediaType;
 
 @Controller
 public class ProductController {
@@ -56,9 +67,52 @@ public class ProductController {
     private AmazonS3 s3;
 
     @RequestMapping(path = "/download/{fileName}", method = RequestMethod.GET)
-    public ResponseEntity<Resource> download(Model model, HttpServletRequest request, @PathVariable String fileName) throws IOException {
+    public ResponseEntity<byte[]> download(Model model, HttpServletRequest request, @PathVariable String fileName) throws IOException {
 
-        return s3Services.downloadFile(fileName);
+        byte[] content = null;
+        System.out.println("Inside download : "+fileName);
+        //return s3Services.downloadFile(fileName);
+        
+        s3 = AmazonS3ClientBuilder.standard()
+                .withCredentials(new ProfileCredentialsProvider())
+                .withRegion("us-east-1")
+                .build();
+
+                // List current buckets.
+                ListMyBuckets();
+                
+                //upload the file
+                //return s3.getObject(bucketName, fileName).getObjectContent();
+                
+
+                final S3Object s3Object = s3.getObject(bucketName, fileName);
+                //final S3ObjectInputStream stream = s3Object.getObjectContent();
+
+                S3ObjectInputStream objectInputStream = s3Object.getObjectContent();
+        
+                byte[] bytes = IOUtils.toByteArray(objectInputStream);
+        
+                String fileName11 = URLEncoder.encode(fileName, "UTF-8").replaceAll("\\+", "%20");
+        
+                HttpHeaders httpHeaders = new HttpHeaders();
+                httpHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+                httpHeaders.setContentLength(bytes.length);
+                httpHeaders.setContentDispositionFormData("attachment", fileName11);
+        
+                return new ResponseEntity<>(bytes, httpHeaders, HttpStatus.OK);
+
+        /*        
+        ModelAndView modelAndView = new ModelAndView();
+        modelAndView.addObject("products", productRepository.findAll());
+        modelAndView.setViewName("listProduct");
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        System.out.println("auth: " + auth.getName());
+        myUser user = userService.findUserByEmail(auth.getName());
+        modelAndView.addObject("user", user);
+*/
+        //return read_buf;
+        //return modelAndView;
+        //return content;
 
         /*
         Resource resource;
@@ -121,7 +175,7 @@ public class ProductController {
             } else {
                 product.setProdUrl(file.getOriginalFilename());
                 final File newfile = convertMultiPartFileToFile(file);
-                s3Services.uploadFile(file.getOriginalFilename(), newfile);
+                //s3Services.uploadFile(file.getOriginalFilename(), newfile);
                 
                 
                 s3 = AmazonS3ClientBuilder.standard()
@@ -166,6 +220,11 @@ public class ProductController {
 
         for (Bucket b : buckets) {
             System.out.println(b.getName());
+            ListObjectsV2Result result = s3.listObjectsV2(b.getName());
+            List<S3ObjectSummary> objects = result.getObjectSummaries();
+            for (S3ObjectSummary os : objects) {
+                System.out.println("* " + os.getKey());
+            }
         }
     }
 
@@ -298,7 +357,10 @@ public class ProductController {
     public ModelAndView delete(@RequestParam String id) {
 
         Optional<Products> product = productRepository.findById(id);
+        String fileName = product.get().getProdUrl();
+        System.out.println("Inside Delete: "+fileName);
         productRepository.delete(product.get());
+        
         ModelAndView modelAndView = new ModelAndView();
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -315,6 +377,20 @@ public class ProductController {
                 modelAndView.addObject("userisadmin", true);
             }
         }
+        
+         s3 = AmazonS3ClientBuilder.standard()
+                .withCredentials(new ProfileCredentialsProvider())
+                .withRegion("us-east-1")
+                .build();
+
+                // List current buckets.
+                ListMyBuckets();
+                
+                //upload the file
+                //return s3.getObject(bucketName, fileName).getObjectContent();
+                
+
+                s3.deleteObject(bucketName, fileName);
 
         return modelAndView;
     }
