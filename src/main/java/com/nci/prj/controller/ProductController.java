@@ -335,6 +335,13 @@ public class ProductController {
         myUser user = userService.findUserByEmail(auth.getName());
         modelAndView.addObject("user", user);
 
+        for (Role chkRole : user.getRoles()) {
+            System.out.println("chkRole: " + chkRole);
+            if (chkRole.getRole().equalsIgnoreCase("admin")) {
+                modelAndView.addObject("userisadmin", true);
+            }
+        }
+
         modelAndView.addObject("successMessage", "Product has been updated successfully");
         modelAndView.addObject("product", productRepository.findById(id).get());
         modelAndView.setViewName("editProduct");
@@ -357,6 +364,13 @@ public class ProductController {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         myUser user = userService.findUserByEmail(auth.getName());
         modelAndView.addObject("user", user);
+
+        for (Role chkRole : user.getRoles()) {
+            System.out.println("chkRole: " + chkRole);
+            if (chkRole.getRole().equalsIgnoreCase("admin")) {
+                modelAndView.addObject("userisadmin", true);
+            }
+        }
 
         modelAndView.addObject("successMessage", "Product has been updated successfully");
         modelAndView.addObject("products", productRepository.findAll());
