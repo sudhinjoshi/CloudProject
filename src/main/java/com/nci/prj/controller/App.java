@@ -14,19 +14,9 @@ public class App {
     private static AmazonS3 s3;
 
     public void performS3Check(String bucket_name, String region) {
-        /*if (args.length < 2) {
-            System.out.format("Usage: <the bucket name> <the AWS Region to use>\n" +
-                    "Example: my-test-bucket us-east-2\n");
-            return;
-        }
-
-        String bucket_name = args[0];
-        String region = args[1];
-*/
-
 
         System.out.format("Usage: <the bucket name> <the AWS Region to use>\n" +
-                    "Example: my-test-bucket us-east-2\n", bucket_name);
+                "Example: my-test-bucket us-east-2\n", bucket_name);
 
         s3 = AmazonS3ClientBuilder.standard()
                 .withCredentials(new ProfileCredentialsProvider())

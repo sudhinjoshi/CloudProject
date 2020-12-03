@@ -1,14 +1,21 @@
 package com.nci.prj.controller;
 
+import com.amazonaws.auth.profile.ProfileCredentialsProvider;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.model.*;
 import com.nci.prj.model.Products;
 import com.nci.prj.model.Role;
 import com.nci.prj.model.myUser;
 import com.nci.prj.repositories.ProductRepository;
 import com.nci.prj.repositories.S3Services;
 import com.nci.prj.services.CustomUserDetailsService;
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,32 +28,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import com.amazonaws.services.s3.model.S3ObjectInputStream;
-
-import com.amazonaws.services.s3.model.ListObjectsV2Result;
-import com.amazonaws.services.s3.model.S3ObjectSummary;
-import com.amazonaws.services.s3.model.S3Object;
-import org.apache.commons.io.IOUtils;
-import java.net.URLEncoder;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Optional;
-
-import com.amazonaws.auth.profile.ProfileCredentialsProvider;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.model.AmazonS3Exception;
-import com.amazonaws.services.s3.model.Bucket;
-import com.amazonaws.services.s3.model.CreateBucketRequest;
-
+import java.net.URLEncoder;
 import java.util.List;
-
-import org.springframework.http.MediaType;
+import java.util.Optional;
 
 @Controller
 public class ProductController {
@@ -70,81 +59,30 @@ public class ProductController {
     public ResponseEntity<byte[]> download(Model model, HttpServletRequest request, @PathVariable String fileName) throws IOException {
 
         byte[] content = null;
-        System.out.println("Inside download : "+fileName);
+        System.out.println("Inside download : " + fileName);
         //return s3Services.downloadFile(fileName);
-        
+
         s3 = AmazonS3ClientBuilder.standard()
                 .withCredentials(new ProfileCredentialsProvider())
                 .withRegion("us-east-1")
                 .build();
 
-                // List current buckets.
-                ListMyBuckets();
-                
-                //upload the file
-                //return s3.getObject(bucketName, fileName).getObjectContent();
-                
+        // List current buckets.
+        ListMyBuckets();
 
-                final S3Object s3Object = s3.getObject(bucketName, fileName);
-                //final S3ObjectInputStream stream = s3Object.getObjectContent();
+        final S3Object s3Object = s3.getObject(bucketName, fileName);
+        S3ObjectInputStream objectInputStream = s3Object.getObjectContent();
 
-                S3ObjectInputStream objectInputStream = s3Object.getObjectContent();
-        
-                byte[] bytes = IOUtils.toByteArray(objectInputStream);
-        
-                String fileName11 = URLEncoder.encode(fileName, "UTF-8").replaceAll("\\+", "%20");
-        
-                HttpHeaders httpHeaders = new HttpHeaders();
-                httpHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-                httpHeaders.setContentLength(bytes.length);
-                httpHeaders.setContentDispositionFormData("attachment", fileName11);
-        
-                return new ResponseEntity<>(bytes, httpHeaders, HttpStatus.OK);
+        byte[] bytes = IOUtils.toByteArray(objectInputStream);
 
-        /*        
-        ModelAndView modelAndView = new ModelAndView();
-        modelAndView.addObject("products", productRepository.findAll());
-        modelAndView.setViewName("listProduct");
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        System.out.println("auth: " + auth.getName());
-        myUser user = userService.findUserByEmail(auth.getName());
-        modelAndView.addObject("user", user);
-*/
-        //return read_buf;
-        //return modelAndView;
-        //return content;
+        String fileName11 = URLEncoder.encode(fileName, "UTF-8").replaceAll("\\+", "%20");
 
-        /*
-        Resource resource;
-        Path path = Paths.get(UPLOADED_FOLDER + fileName);
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        httpHeaders.setContentLength(bytes.length);
+        httpHeaders.setContentDispositionFormData("attachment", fileName11);
 
-        System.out.println("path: " + path.getFileName().toAbsolutePath());
-
-        try {
-            resource = new UrlResource(path.toUri());
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-            return null;
-        }
-
-        // Try to determine file's content type
-        String contentType = null;
-        try {
-            contentType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
-        } catch (IOException ex) {
-            System.out.println("Could not determine file type.");
-        }
-
-        // Fallback to the default content type if type could not be determined
-        if (contentType == null) {
-            contentType = "application/octet-stream";
-        }
-
-        return ResponseEntity.ok().contentType(MediaType.parseMediaType(contentType))
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
-                .body(resource);
-
-         */
+        return new ResponseEntity<>(bytes, httpHeaders, HttpStatus.OK);
 
     }
 
@@ -163,7 +101,7 @@ public class ProductController {
         product.setProdName(prodName);
         product.setProdDesc(prodDesc);
         product.setProdPrice(prodPrice);
-        
+
         String fileupload = "";
 
         try {
@@ -175,29 +113,18 @@ public class ProductController {
             } else {
                 product.setProdUrl(file.getOriginalFilename());
                 final File newfile = convertMultiPartFileToFile(file);
-                //s3Services.uploadFile(file.getOriginalFilename(), newfile);
-                
-                
+
                 s3 = AmazonS3ClientBuilder.standard()
-                .withCredentials(new ProfileCredentialsProvider())
-                .withRegion("us-east-1")
-                .build();
+                        .withCredentials(new ProfileCredentialsProvider())
+                        .withRegion("us-east-1")
+                        .build();
 
                 // List current buckets.
                 ListMyBuckets();
-                
+
                 //upload the file
                 s3.putObject(bucketName, file.getOriginalFilename(), newfile);
 
-                /*
-                // Get the file and save it somewhere
-                byte[] bytes = file.getBytes();
-
-                Path path = Paths.get(UPLOADED_FOLDER + file.getOriginalFilename());
-                System.out.println("+1: " + path.toAbsolutePath());
-
-                Files.write(path, bytes);
-                */
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -209,11 +136,19 @@ public class ProductController {
         System.out.println("New Product saved: Id: " + prodId);
         modelAndView.addObject("successMessage", "Product has been registered successfully. " + fileupload);
         modelAndView.addObject("products", productRepository.findAll());
+
+        for (Role chkRole : user.getRoles()) {
+            System.out.println("chkRole: " + chkRole);
+            if (chkRole.getRole().equalsIgnoreCase("admin")) {
+                modelAndView.addObject("userisadmin", true);
+            }
+        }
+
         modelAndView.setViewName("listProduct");
 
         return modelAndView;
     }
-    
+
     private void ListMyBuckets() {
         List<Bucket> buckets = s3.listBuckets();
         System.out.println("My buckets now are:");
@@ -223,7 +158,7 @@ public class ProductController {
             ListObjectsV2Result result = s3.listObjectsV2(b.getName());
             List<S3ObjectSummary> objects = result.getObjectSummaries();
             for (S3ObjectSummary os : objects) {
-                System.out.println("* " + os.getKey());
+                System.out.println("** " + os.getKey());
             }
         }
     }
@@ -233,7 +168,7 @@ public class ProductController {
         try (final FileOutputStream outputStream = new FileOutputStream(file)) {
             outputStream.write(multipartFile.getBytes());
         } catch (final IOException ex) {
-            System.out.println("Error converting the multi-part file to file= "+ex.getMessage());
+            System.out.println("Error converting the multi-part file to file= " + ex.getMessage());
         }
         return file;
     }
@@ -264,8 +199,8 @@ public class ProductController {
         //modelAndView.addObject("successMessage", "Product has been listed successfully");
         modelAndView.addObject("products", productRepository.findAll());
 
-        for(Role chkRole : user.getRoles()){
-            System.out.println("chkRole: "+chkRole);
+        for (Role chkRole : user.getRoles()) {
+            System.out.println("chkRole: " + chkRole);
             if (chkRole.getRole().equalsIgnoreCase("admin")) {
                 modelAndView.addObject("userisadmin", true);
             }
@@ -288,8 +223,8 @@ public class ProductController {
         //modelAndView.addObject("successMessage", "Product has been listed successfully");
         modelAndView.addObject("products", productRepository.findAll());
 
-        for(Role chkRole : user.getRoles()){
-            System.out.println("chkRole: "+chkRole);
+        for (Role chkRole : user.getRoles()) {
+            System.out.println("chkRole: " + chkRole);
             if (chkRole.getRole().equalsIgnoreCase("admin")) {
                 modelAndView.addObject("userisadmin", true);
             }
@@ -298,7 +233,6 @@ public class ProductController {
         //modelAndView.addObject("userisadmin", true);
         //model.addAttribute("products", productRepository.findAll());
         modelAndView.setViewName("listProduct");
-
 
         return modelAndView;
     }
@@ -358,9 +292,9 @@ public class ProductController {
 
         Optional<Products> product = productRepository.findById(id);
         String fileName = product.get().getProdUrl();
-        System.out.println("Inside Delete: "+fileName);
+        System.out.println("Inside Delete: " + fileName);
         productRepository.delete(product.get());
-        
+
         ModelAndView modelAndView = new ModelAndView();
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -371,26 +305,22 @@ public class ProductController {
         modelAndView.addObject("products", productRepository.findAll());
         modelAndView.setViewName("listProduct");
 
-        for(Role chkRole : user.getRoles()){
-            System.out.println("chkRole: "+chkRole);
+        for (Role chkRole : user.getRoles()) {
+            System.out.println("chkRole: " + chkRole);
             if (chkRole.getRole().equalsIgnoreCase("admin")) {
                 modelAndView.addObject("userisadmin", true);
             }
         }
-        
-         s3 = AmazonS3ClientBuilder.standard()
+
+        s3 = AmazonS3ClientBuilder.standard()
                 .withCredentials(new ProfileCredentialsProvider())
                 .withRegion("us-east-1")
                 .build();
 
-                // List current buckets.
-                ListMyBuckets();
-                
-                //upload the file
-                //return s3.getObject(bucketName, fileName).getObjectContent();
-                
+        // List current buckets.
+        ListMyBuckets();
 
-                s3.deleteObject(bucketName, fileName);
+        s3.deleteObject(bucketName, fileName);
 
         return modelAndView;
     }
