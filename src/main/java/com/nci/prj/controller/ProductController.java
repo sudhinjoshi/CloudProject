@@ -274,15 +274,16 @@ public class ProductController {
 
     @RequestMapping(value = "/productShow/{id}", method = RequestMethod.GET)
     public ModelAndView productShow(Model model, @PathVariable String id) {
-        System.out.println("productShow: " + id);
+        System.out.println("productShow Id: " + id);
         ModelAndView modelAndView = new ModelAndView();
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         myUser user = userService.findUserByEmail(auth.getName());
         modelAndView.addObject("user", user);
-
+        System.out.println("before getting product:");
         modelAndView.addObject("product", productRepository.findById(id).get());
+        System.out.println("before getting product desc:");
         modelAndView.addObject("productDescription", productRepository.findById(id).get().getProdDesc());
-        modelAndView.setViewName("showProduct");
+        modelAndView.setViewName("showProductDetails");
 
         return modelAndView;
     }
@@ -350,12 +351,67 @@ public class ProductController {
     }
 
     @RequestMapping(value = "/editProduct", method = RequestMethod.POST)
-    public ModelAndView update(@RequestParam String id, @RequestParam String prodName, @RequestParam String prodDesc, @RequestParam float prodPrice, @RequestParam String prodUrl, @RequestParam int prodQty) {
+    public ModelAndView update(@RequestParam String id, @RequestParam String prodName, @RequestParam String prodDesc, @RequestParam float prodPrice, @RequestParam("prodImage") MultipartFile file, @RequestParam int prodQty, @RequestParam String currentSpecification) {
+       
+        System.out.println();
+        System.out.println("Current Specification: "+currentSpecification);
         Optional<Products> product = productRepository.findById(id);
         product.get().setProdName(prodName);
         product.get().setProdDesc(prodDesc);
         product.get().setProdPrice(prodPrice);
-        product.get().setProdUrl(prodUrl);
+        
+        //product.get().setProdUrl(prodUrl);
+        String fileupload = "";
+
+        try {
+            if (file.isEmpty()) {
+                /*
+                if (currentSpecification.length()>0) {
+                    System.out.println("Keeping current Specification as earlier");
+                }
+                else {
+                    product.get().setProdUrl("");
+                    System.out.println("Specification is not posted");
+                }
+                */
+                //redirectAttributes.addFlashAttribute("message", "Please select a file to upload");
+                //modelAndView.addObject("successMessage", "Product has been registered successfully. However file was empty");
+            } else {
+                product.get().setProdUrl(file.getOriginalFilename());
+                final File newfile = convertMultiPartFileToFile(file);
+
+                s3 = AmazonS3ClientBuilder.standard()
+                        .withCredentials(new ProfileCredentialsProvider())
+                        .withRegion("us-east-1")
+                        .build();
+
+                // List current buckets.
+                ListMyBuckets();
+
+                //upload the file
+                s3.putObject(bucketName, file.getOriginalFilename(), newfile);
+                
+                if (currentSpecification.length()>0 && !currentSpecification.equalsIgnoreCase(file.getOriginalFilename())) {
+                    System.out.println("The existing specification and current specification is different. deleting earlier specification");
+                    
+                     s3 = AmazonS3ClientBuilder.standard()
+                    .withCredentials(new ProfileCredentialsProvider())
+                    .withRegion("us-east-1")
+                    .build();
+    
+                    s3.deleteObject(bucketName, currentSpecification);
+                    
+                    System.out.println("The latest bucket list: ");
+                    ListMyBuckets();
+                    
+                }
+
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            fileupload = "However Specification uploading failed. Try Edit Product later";
+        }
+        
         product.get().setProdQuantity(prodQty);
         productRepository.save(product.get());
 

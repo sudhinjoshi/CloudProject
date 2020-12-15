@@ -2,6 +2,7 @@ package com.nci.prj.controller;
 
 import com.nci.prj.model.myUser;
 import com.nci.prj.repositories.RoleRepository;
+import com.nci.prj.repositories.UserRepository;
 import com.nci.prj.services.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -23,6 +24,9 @@ public class LoginController {
 
     @Autowired
     private RoleRepository roleRepository;
+    
+    @Autowired
+    private UserRepository userRepository;
 
     @RequestMapping(value = "/login", method = RequestMethod.GET)
     public ModelAndView login() {
@@ -97,6 +101,23 @@ public class LoginController {
         modelAndView.addObject("fullName", "Welcome " + user.getFullname());
         modelAndView.addObject("adminMessage", "Content Available Only for Users with Admin Role");
         modelAndView.setViewName("userdashboard");
+        return modelAndView;
+    }
+    
+    @RequestMapping(value = "/listUsers", method = RequestMethod.GET)
+    public ModelAndView listUserDetails() {
+        System.out.println("Listing Users");
+        ModelAndView modelAndView = new ModelAndView();
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        myUser user = userService.findUserByEmail(auth.getName());
+        System.out.println("currentUser(): " + user.getFullname());
+        modelAndView.addObject("user", user);
+        modelAndView.addObject("users", userRepository.findAll());
+        //modelAndView.addObject("roles", roleRepository.findAll());
+        modelAndView.addObject("currentUser", user);
+        modelAndView.addObject("fullName", "Welcome " + user.getFullname());
+        modelAndView.addObject("adminMessage", "Content Available Only for Users with Admin Role");
+        modelAndView.setViewName("listUsers");
         return modelAndView;
     }
 
