@@ -184,6 +184,13 @@ public class ProductController {
         modelAndView.addObject("successMessage", "Product has been registered successfully");
         modelAndView.addObject("products", new Products());
         modelAndView.setViewName("createProduct");
+        
+        for (Role chkRole : user.getRoles()) {
+            System.out.println("chkRole: " + chkRole);
+            if (chkRole.getRole().equalsIgnoreCase("admin")) {
+                modelAndView.addObject("userisadmin", true);
+            }
+        }
 
         return modelAndView;
     }
@@ -249,6 +256,13 @@ public class ProductController {
         modelAndView.addObject("products", productRepository.findAll());
         //model.addAttribute("products", productRepository.findAll());
         modelAndView.setViewName("editInventory");
+        
+        for (Role chkRole : user.getRoles()) {
+            System.out.println("chkRole: " + chkRole);
+            if (chkRole.getRole().equalsIgnoreCase("admin")) {
+                modelAndView.addObject("userisadmin", true);
+            }
+        }
 
         return modelAndView;
     }
@@ -268,6 +282,13 @@ public class ProductController {
         modelAndView.addObject("successMessage", "Product Quantity has been updated successfully");
         modelAndView.addObject("products", productRepository.findAll());
         modelAndView.setViewName("listProduct");
+        
+        for (Role chkRole : user.getRoles()) {
+            System.out.println("chkRole: " + chkRole);
+            if (chkRole.getRole().equalsIgnoreCase("admin")) {
+                modelAndView.addObject("userisadmin", true);
+            }
+        }
 
         return modelAndView;
     }
@@ -284,6 +305,13 @@ public class ProductController {
         System.out.println("before getting product desc:");
         modelAndView.addObject("productDescription", productRepository.findById(id).get().getProdDesc());
         modelAndView.setViewName("showProductDetails");
+        
+        for (Role chkRole : user.getRoles()) {
+            System.out.println("chkRole: " + chkRole);
+            if (chkRole.getRole().equalsIgnoreCase("admin")) {
+                modelAndView.addObject("userisadmin", true);
+            }
+        }
 
         return modelAndView;
     }

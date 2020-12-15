@@ -1,6 +1,7 @@
 package com.nci.prj.controller;
 
 import com.nci.prj.model.myUser;
+import com.nci.prj.model.Role;
 import com.nci.prj.repositories.RoleRepository;
 import com.nci.prj.services.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +36,14 @@ public class AdminController {
         modelAndView.addObject("fullName", "Welcome " + user.getFullname());
         modelAndView.addObject("adminMessage", "Content Available Only for Users with Admin Role");
         modelAndView.setViewName("newDashboard");
+        
+        for (Role chkRole : user.getRoles()) {
+            System.out.println("chkRole: " + chkRole);
+            if (chkRole.getRole().equalsIgnoreCase("admin")) {
+                modelAndView.addObject("userisadmin", true);
+            }
+        }
+        
         return modelAndView;
     }
 

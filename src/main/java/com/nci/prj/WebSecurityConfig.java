@@ -52,7 +52,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 //.antMatchers("/**","/dashboard","/").hasAuthority("USER")
                 //.antMatchers("/productAdminDashboard/**").hasAuthority("PRODUCT_ADMIN")
                 //.antMatchers("/userAdminDashboard/**").hasAuthority("USER_ADMIN")
-                .antMatchers("/**","/dashboard","/").hasAnyAuthority("USER","ADMIN").anyRequest()
+                .antMatchers("/**","/dashboard","/").hasAnyAuthority("ADMIN","USER").anyRequest()
                 .authenticated().and().csrf().disable().formLogin().successHandler(customizeAuthenticationSuccessHandler)
                 .loginPage("/login").failureUrl("/login?error=true")
                 .usernameParameter("email")

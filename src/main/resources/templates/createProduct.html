@@ -34,34 +34,44 @@
             <li class="">
                 <a href="#homeSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Products</a>
                 <ul class="collapse list-unstyled" id="homeSubmenu">
+                    <div th:if="${userisadmin}">
                     <li class="active">
                         <a href="/productCreation">Create</a>
                     </li>
+                    </dev>
                     <li>
                         <a href="/productList">View</a>
                     </li>
+                    <div th:if="${userisadmin}">
                     <li>
-                        <a href="#">Inventory</a>
+                        <a href="/productInventory">Inventory</a>
                     </li>
+                    </div>
                 </ul>
             </li>
             <li>
                 <a href="#pageSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">User</a>
                 <ul class="collapse list-unstyled" id="pageSubmenu">
+                    <div th:if="${userisadmin}">
                     <li>
                         <a href="#">Create</a>
                     </li>
+                    </div>
                     <li>
-                        <a href="#">View</a>
+                        <a href="/listUsers">View</a>
                     </li>
+                    <div th:if="${userisadmin}">
                     <li>
                         <a href="#">Approve</a>
                     </li>
+                    </div>
                 </ul>
             </li>
+            <div th:if="${userisadmin}">
             <li>
                 <a href="#">Reports</a>
             </li>
+            </div>
             <li>
                 <a href="#">Contact</a>
             </li>
