@@ -17,6 +17,13 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.validation.Valid;
 
+/**
+ * Login Controller
+ * <p>
+ * This controller handles GET Endpoints for Signup as well as User Dashboard and User Listing
+ *
+ * @author Sudhindra Joshi
+ */
 @Controller
 public class LoginController {
 
@@ -25,10 +32,13 @@ public class LoginController {
 
     @Autowired
     private RoleRepository roleRepository;
-    
+
     @Autowired
     private UserRepository userRepository;
 
+    /**
+     * Method renders the login view
+     */
     @RequestMapping(value = "/login", method = RequestMethod.GET)
     public ModelAndView login() {
         ModelAndView modelAndView = new ModelAndView();
@@ -36,6 +46,9 @@ public class LoginController {
         return modelAndView;
     }
 
+    /**
+     * Method renders the signup view
+     */
     @RequestMapping(value = "/signup", method = RequestMethod.GET)
     public ModelAndView signup() {
         ModelAndView modelAndView = new ModelAndView();
@@ -47,6 +60,12 @@ public class LoginController {
         return modelAndView;
     }
 
+    /**
+     * Method perform POST operation Signup for new users
+     *
+     * @param user  - User details
+     * @param roles - Role of the User
+     */
     @RequestMapping(value = "/signup", method = RequestMethod.POST)
     public ModelAndView createNewUser(@Valid myUser user, BindingResult bindingResult, @RequestParam String roles) {
         System.out.println("createNewUser ##: " + roles);
@@ -75,6 +94,11 @@ public class LoginController {
         return modelAndView;
     }
 
+    /**
+     * Method perform GET operation for admin user dashboard
+     *
+     * @return ModelAndView - newDashboard
+     */
     @RequestMapping(value = "/dashboard", method = RequestMethod.GET)
     public ModelAndView dashboard() {
         System.out.println("LoginController.dashboard()");
@@ -87,17 +111,22 @@ public class LoginController {
         modelAndView.addObject("fullName", "Welcome " + user.getFullname());
         modelAndView.addObject("adminMessage", "Content Available Only for Users with Admin Role");
         modelAndView.setViewName("newDashboard");
-        
+
         for (Role chkRole : user.getRoles()) {
             System.out.println("chkRole: " + chkRole);
             if (chkRole.getRole().equalsIgnoreCase("admin")) {
                 modelAndView.addObject("userisadmin", true);
             }
         }
-        
+
         return modelAndView;
     }
 
+    /**
+     * Method perform GET operation for common user dashboard
+     *
+     * @return ModelAndView - userDashboard
+     */
     @RequestMapping(value = "/userdashboard", method = RequestMethod.GET)
     public ModelAndView userdashboard() {
         System.out.println("LoginController.userdashboard()");
@@ -110,17 +139,22 @@ public class LoginController {
         modelAndView.addObject("fullName", "Welcome " + user.getFullname());
         modelAndView.addObject("adminMessage", "Content Available Only for Users with Admin Role");
         modelAndView.setViewName("userdashboard");
-        
+
         for (Role chkRole : user.getRoles()) {
             System.out.println("chkRole: " + chkRole);
             if (chkRole.getRole().equalsIgnoreCase("admin")) {
                 modelAndView.addObject("userisadmin", true);
             }
         }
-        
+
         return modelAndView;
     }
-    
+
+    /**
+     * Method perform GET operation for listing all user
+     *
+     * @return ModelAndView - listUsers
+     */
     @RequestMapping(value = "/listUsers", method = RequestMethod.GET)
     public ModelAndView listUserDetails() {
         System.out.println("Listing Users");
@@ -135,15 +169,14 @@ public class LoginController {
         modelAndView.addObject("fullName", "Welcome " + user.getFullname());
         modelAndView.addObject("adminMessage", "Content Available Only for Users with Admin Role");
         modelAndView.setViewName("listUsers");
-        
-        
+
         for (Role chkRole : user.getRoles()) {
             System.out.println("chkRole: " + chkRole);
             if (chkRole.getRole().equalsIgnoreCase("admin")) {
                 modelAndView.addObject("userisadmin", true);
             }
         }
-        
+
         return modelAndView;
     }
 

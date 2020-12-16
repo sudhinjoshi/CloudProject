@@ -5,6 +5,12 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.index.IndexDirection;
 import org.springframework.data.mongodb.core.index.Indexed;
 
+/**
+ * Role Model
+ * <p>
+ *
+ * @author Sudhindra Joshi
+ */
 @Document(collection = "role")
 public class Role {
 

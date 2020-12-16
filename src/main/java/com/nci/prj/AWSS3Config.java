@@ -7,6 +7,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * Configuration - AWSS3Config
+ * <p>
+ * This Configuration is a placeholder for S3 interface
+ *
+ * @author Sudhindra Joshi
+ */
 @Configuration
 public class AWSS3Config {
 
@@ -20,6 +27,11 @@ public class AWSS3Config {
     @Value("${aws.s3.region}")
     private String region;
 
+    /**
+     * Bean to get custom S3Client
+     *
+     * @return AmazonS3 client
+     */
     @Bean
     public AmazonS3 getAmazonS3Cient() {
 
@@ -30,9 +42,5 @@ public class AWSS3Config {
                 .withCredentials(credentials)
                 .withRegion(region)
                 .build();
-
-
     }
-
-
 }

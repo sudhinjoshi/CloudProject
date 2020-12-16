@@ -8,6 +8,12 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Set;
 
+/**
+ * User Model
+ * <p>
+ *
+ * @author Sudhindra Joshi
+ */
 @Document(collection = "myusers")
 public class myUser {
     @Id

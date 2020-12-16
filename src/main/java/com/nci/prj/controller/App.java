@@ -9,10 +9,22 @@ import com.amazonaws.services.s3.model.CreateBucketRequest;
 
 import java.util.List;
 
+/**
+ * App class
+ *
+ * Placeholder class to check the AWS S3 integration
+ * @author Sudhindra Joshi
+ *
+ */
 public class App {
 
     private static AmazonS3 s3;
 
+    /**
+     * Method to perform S3 integration Check
+     * @param bucket_name - Name of the Bucket
+     * @param region - Name of the Region
+     */
     public void performS3Check(String bucket_name, String region) {
 
         System.out.format("Usage: <the bucket name> <the AWS Region to use>\n" +
@@ -56,6 +68,9 @@ public class App {
 
     }
 
+    /**
+     * Method to list S3 buckets
+     */
     private static void ListMyBuckets() {
         List<Bucket> buckets = s3.listBuckets();
         System.out.println("My buckets now are:");
@@ -64,5 +79,4 @@ public class App {
             System.out.println(b.getName());
         }
     }
-
 }

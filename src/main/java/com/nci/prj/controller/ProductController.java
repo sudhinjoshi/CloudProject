@@ -37,6 +37,14 @@ import java.net.URLEncoder;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Product Controller
+ * <p>
+ * This controller handles GET and POST Endpoints for Product related functionality
+ * It also handles the uploading and downloading of Product Specification from AWS S3
+ *
+ * @author Sudhindra Joshi
+ */
 @Controller
 public class ProductController {
 
@@ -55,6 +63,12 @@ public class ProductController {
     private static String UPLOADED_FOLDER = "/";
     private AmazonS3 s3;
 
+    /**
+     * Method perform Object download operation from AWS S3
+     *
+     * @param fileName - Object Name to be downloaded
+     * @return specification file
+     */
     @RequestMapping(path = "/download/{fileName}", method = RequestMethod.GET)
     public ResponseEntity<byte[]> download(Model model, HttpServletRequest request, @PathVariable String fileName) throws IOException {
 
@@ -86,7 +100,16 @@ public class ProductController {
 
     }
 
-
+    /**
+     * Method to handle POST endpoint Product Creation
+     *
+     * @param prodName     - Product Name
+     * @param prodDesc     - Product Description
+     * @param prodPrice    - Product Price
+     * @param prodQuantity - Product Quantity
+     * @param file         - Product Specification file
+     * @return ModelAndView - listProduct
+     */
     @RequestMapping(value = "/productCreation", method = RequestMethod.POST)
     public ModelAndView productCreationPost(@RequestParam String prodName, @RequestParam String prodDesc, @RequestParam float prodPrice,
                                             @RequestParam int prodQuantity, @RequestParam("prodImage") MultipartFile file,
@@ -149,6 +172,9 @@ public class ProductController {
         return modelAndView;
     }
 
+    /**
+     * Method to list AWS S3 bucket contents
+     */
     private void ListMyBuckets() {
         List<Bucket> buckets = s3.listBuckets();
         System.out.println("My buckets now are:");
@@ -163,6 +189,12 @@ public class ProductController {
         }
     }
 
+    /**
+     * Method to convert multipart file to file
+     *
+     * @param multipartFile - Multipart file
+     * @return File
+     */
     private File convertMultiPartFileToFile(final MultipartFile multipartFile) {
         final File file = new File(multipartFile.getOriginalFilename());
         try (final FileOutputStream outputStream = new FileOutputStream(file)) {
@@ -173,6 +205,11 @@ public class ProductController {
         return file;
     }
 
+    /**
+     * Method to handle GET endpoint Product Creation View
+     *
+     * @return ModelAndView - createProduct
+     */
     @RequestMapping(value = "/productCreation", method = RequestMethod.GET)
     public ModelAndView productCreationGet() {
         System.out.println("productCreation: GET ");
@@ -184,7 +221,7 @@ public class ProductController {
         modelAndView.addObject("successMessage", "Product has been registered successfully");
         modelAndView.addObject("products", new Products());
         modelAndView.setViewName("createProduct");
-        
+
         for (Role chkRole : user.getRoles()) {
             System.out.println("chkRole: " + chkRole);
             if (chkRole.getRole().equalsIgnoreCase("admin")) {
@@ -195,6 +232,11 @@ public class ProductController {
         return modelAndView;
     }
 
+    /**
+     * Method to handle GET endpoint Product List
+     *
+     * @return ModelAndView - listProduct
+     */
     @RequestMapping(value = "/productList", method = RequestMethod.GET)
     public ModelAndView productList(Model model) {
         System.out.println("productList: GET ");
@@ -203,7 +245,6 @@ public class ProductController {
         System.out.println("auth: " + auth.getName());
         myUser user = userService.findUserByEmail(auth.getName());
         modelAndView.addObject("user", user);
-        //modelAndView.addObject("successMessage", "Product has been listed successfully");
         modelAndView.addObject("products", productRepository.findAll());
 
         for (Role chkRole : user.getRoles()) {
@@ -213,12 +254,16 @@ public class ProductController {
             }
         }
 
-        //model.addAttribute("products", productRepository.findAll());
         modelAndView.setViewName("listProduct");
 
         return modelAndView;
     }
 
+    /**
+     * Method to handle GET endpoint Product List for User
+     *
+     * @return ModelAndView - listProduct
+     */
     @RequestMapping(value = "/productListUser", method = RequestMethod.GET)
     public ModelAndView productListUser(Model model) {
         System.out.println("productListUser: GET ");
@@ -237,13 +282,16 @@ public class ProductController {
             }
         }
 
-        //modelAndView.addObject("userisadmin", true);
-        //model.addAttribute("products", productRepository.findAll());
         modelAndView.setViewName("listProduct");
 
         return modelAndView;
     }
 
+    /**
+     * Method to handle GET endpoint Product Inventory
+     *
+     * @return ModelAndView - editInventory
+     */
     @RequestMapping(value = "/productInventory", method = RequestMethod.GET)
     public ModelAndView productInventory(Model model) {
         System.out.println("productInventory: GET ");
@@ -256,7 +304,7 @@ public class ProductController {
         modelAndView.addObject("products", productRepository.findAll());
         //model.addAttribute("products", productRepository.findAll());
         modelAndView.setViewName("editInventory");
-        
+
         for (Role chkRole : user.getRoles()) {
             System.out.println("chkRole: " + chkRole);
             if (chkRole.getRole().equalsIgnoreCase("admin")) {
@@ -267,6 +315,13 @@ public class ProductController {
         return modelAndView;
     }
 
+    /**
+     * Method to handle POST endpoint Product Inventory
+     *
+     * @param productId  - Product Id
+     * @param newProdQty - Product Quantity
+     * @return ModelAndView - listProduct
+     */
     @RequestMapping(value = "/productInventory", method = RequestMethod.POST)
     public ModelAndView productInventoryUpdate(@RequestParam String productId, @RequestParam int newProdQty) {
         Optional<Products> product = productRepository.findById(productId);
@@ -282,7 +337,7 @@ public class ProductController {
         modelAndView.addObject("successMessage", "Product Quantity has been updated successfully");
         modelAndView.addObject("products", productRepository.findAll());
         modelAndView.setViewName("listProduct");
-        
+
         for (Role chkRole : user.getRoles()) {
             System.out.println("chkRole: " + chkRole);
             if (chkRole.getRole().equalsIgnoreCase("admin")) {
@@ -293,6 +348,12 @@ public class ProductController {
         return modelAndView;
     }
 
+    /**
+     * Method to handle GET endpoint Show Product
+     *
+     * @param id - Product Id
+     * @return ModelAndView - showProductDetails
+     */
     @RequestMapping(value = "/productShow/{id}", method = RequestMethod.GET)
     public ModelAndView productShow(Model model, @PathVariable String id) {
         System.out.println("productShow Id: " + id);
@@ -305,7 +366,7 @@ public class ProductController {
         System.out.println("before getting product desc:");
         modelAndView.addObject("productDescription", productRepository.findById(id).get().getProdDesc());
         modelAndView.setViewName("showProductDetails");
-        
+
         for (Role chkRole : user.getRoles()) {
             System.out.println("chkRole: " + chkRole);
             if (chkRole.getRole().equalsIgnoreCase("admin")) {
@@ -316,6 +377,13 @@ public class ProductController {
         return modelAndView;
     }
 
+    /**
+     * Method to handle DElETE endpoint Product deletion
+     * Updates the Product Specification to AWS S3
+     *
+     * @param id - Product Id
+     * @return ModelAndView - listProduct
+     */
     @RequestMapping(value = "/productdelete")
     public ModelAndView delete(@RequestParam String id) {
 
@@ -354,6 +422,12 @@ public class ProductController {
         return modelAndView;
     }
 
+    /**
+     * Method to handle GET endpoint Product Update
+     *
+     * @param id - Product Id
+     * @return ModelAndView - editProduct
+     */
     @RequestMapping(value = "/productedit/{id}")
     public ModelAndView edit(@PathVariable String id, Model model) {
 
@@ -378,32 +452,34 @@ public class ProductController {
         return modelAndView;
     }
 
+    /**
+     * Method to handle POST endpoint Product Update
+     *
+     * @param id                   - Product Id
+     * @param prodName             - Product Name
+     * @param prodPrice            - Product Price
+     * @param prodDesc             - Product Description
+     * @param prodQty              - Product Quantity
+     * @param currentSpecification - Current Product Specification File Name
+     * @param file                 - Product Specification file
+     * @return ModelAndView - listProduct
+     */
     @RequestMapping(value = "/editProduct", method = RequestMethod.POST)
     public ModelAndView update(@RequestParam String id, @RequestParam String prodName, @RequestParam String prodDesc, @RequestParam float prodPrice, @RequestParam("prodImage") MultipartFile file, @RequestParam int prodQty, @RequestParam String currentSpecification) {
-       
+
         System.out.println();
-        System.out.println("Current Specification: "+currentSpecification);
+        System.out.println("Current Specification: " + currentSpecification);
         Optional<Products> product = productRepository.findById(id);
         product.get().setProdName(prodName);
         product.get().setProdDesc(prodDesc);
         product.get().setProdPrice(prodPrice);
-        
+
         //product.get().setProdUrl(prodUrl);
         String fileupload = "";
 
         try {
             if (file.isEmpty()) {
-                /*
-                if (currentSpecification.length()>0) {
-                    System.out.println("Keeping current Specification as earlier");
-                }
-                else {
-                    product.get().setProdUrl("");
-                    System.out.println("Specification is not posted");
-                }
-                */
-                //redirectAttributes.addFlashAttribute("message", "Please select a file to upload");
-                //modelAndView.addObject("successMessage", "Product has been registered successfully. However file was empty");
+                //All good no change required
             } else {
                 product.get().setProdUrl(file.getOriginalFilename());
                 final File newfile = convertMultiPartFileToFile(file);
@@ -418,28 +494,27 @@ public class ProductController {
 
                 //upload the file
                 s3.putObject(bucketName, file.getOriginalFilename(), newfile);
-                
-                if (currentSpecification.length()>0 && !currentSpecification.equalsIgnoreCase(file.getOriginalFilename())) {
+
+                if (currentSpecification.length() > 0 && !currentSpecification.equalsIgnoreCase(file.getOriginalFilename())) {
                     System.out.println("The existing specification and current specification is different. deleting earlier specification");
-                    
-                     s3 = AmazonS3ClientBuilder.standard()
-                    .withCredentials(new ProfileCredentialsProvider())
-                    .withRegion("us-east-1")
-                    .build();
-    
+
+                    s3 = AmazonS3ClientBuilder.standard()
+                            .withCredentials(new ProfileCredentialsProvider())
+                            .withRegion("us-east-1")
+                            .build();
+
                     s3.deleteObject(bucketName, currentSpecification);
-                    
+
                     System.out.println("The latest bucket list: ");
                     ListMyBuckets();
-                    
-                }
 
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
             fileupload = "However Specification uploading failed. Try Edit Product later";
         }
-        
+
         product.get().setProdQuantity(prodQty);
         productRepository.save(product.get());
 

@@ -9,6 +9,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * Configuration - S3Config
+ * <p>
+ * This class retrieves AWSS3 credentials from application.properties file
+ *
+ * @author Sudhindra Joshi
+ */
 @Configuration
 public class S3Config {
     @Value("${aws.access_key_id}")

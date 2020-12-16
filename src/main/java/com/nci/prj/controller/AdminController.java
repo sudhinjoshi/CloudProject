@@ -1,21 +1,24 @@
 package com.nci.prj.controller;
 
-import com.nci.prj.model.myUser;
 import com.nci.prj.model.Role;
+import com.nci.prj.model.myUser;
 import com.nci.prj.repositories.RoleRepository;
 import com.nci.prj.services.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
-import javax.validation.Valid;
-
+/**
+ * Admin Controller
+ *
+ * It currently has implementation of GET dashboard implementation
+ * @author Sudhindra Joshi
+ *
+ */
 @Controller
 public class AdminController {
 
@@ -25,6 +28,10 @@ public class AdminController {
     @Autowired
     private RoleRepository roleRepository;
 
+    /**
+     * Method to Handling /newDashboard GET Endpoint
+     * @return ModelAndView newDashboard
+     */
     @RequestMapping(value = "/newDashboard", method = RequestMethod.GET)
     public ModelAndView lognewDashboard() {
         System.out.println("AdminController.lognewDashboard()");
@@ -36,14 +43,14 @@ public class AdminController {
         modelAndView.addObject("fullName", "Welcome " + user.getFullname());
         modelAndView.addObject("adminMessage", "Content Available Only for Users with Admin Role");
         modelAndView.setViewName("newDashboard");
-        
+
         for (Role chkRole : user.getRoles()) {
             System.out.println("chkRole: " + chkRole);
             if (chkRole.getRole().equalsIgnoreCase("admin")) {
                 modelAndView.addObject("userisadmin", true);
             }
         }
-        
+
         return modelAndView;
     }
 

@@ -12,8 +12,14 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
 
+/**
+ * Configuration - SpringbootSecurity
+ * <p>
+ * This class responsible to managing the Spring boot Security
+ *
+ * @author Sudhindra Joshi
+ */
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
@@ -29,6 +35,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         return new CustomUserDetailsService();
     }
 
+    /**
+     * Method retrieve mongoDB details and peform authorization
+     *
+     * @param auth - AuthenticationManagerBUilder
+     */
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         System.out.println("Inside configure() ... ");
@@ -39,11 +50,15 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     }
 
+    /**
+     * Method configures the various rules for the application on which Spring boot will operate
+     *
+     * @param http - HttpSecurity
+     */
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         System.out.println("Inside config(HttpSecurity)");
 
-        //http.requiresChannel().anyRequest().requiresSecure().and()
         http
                 .authorizeRequests()
                 .antMatchers("/", "/home", "/js/**", "/css/**","/images/**").permitAll()
@@ -68,7 +83,5 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .ignoring()
                 .antMatchers("/resources/**", "/static/**", "/css/**", "/js/**", "/static/images/**");
     }
-
-
 
 }

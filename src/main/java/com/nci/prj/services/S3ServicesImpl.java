@@ -19,6 +19,13 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 
+/**
+ * Service - S3ServiceImpl
+ * <p>
+ * This service is implementing AWS S3 integration
+ *
+ * @author Sudhindra Joshi
+ */
 @Service
 public class S3ServicesImpl implements S3Services {
 
@@ -28,6 +35,12 @@ public class S3ServicesImpl implements S3Services {
     @Value("${aws.s3.bucket}")
     private String bucketName;
 
+    /**
+     * Method perform Object download operation from AWS S3
+     *
+     * @param keyName - Object Name to be downloaded
+     * @return specification file
+     */
     @Override
     public ResponseEntity<Resource> downloadFile(String keyName) {
 
@@ -44,14 +57,18 @@ public class S3ServicesImpl implements S3Services {
 
     }
 
+    /**
+     * Method perform Object upload operation in AWS S3
+     *
+     * @param keyName - Object Name to be uploaded
+     * @param file    - Specification File to be uploaded
+     */
     @Override
     public void uploadFile(String keyName, final File file) {
         try {
 
             s3client.putObject(new PutObjectRequest(bucketName, keyName, file));
             System.out.println("===================== Upload File - Done! =====================");
-
-
 
         } catch (AmazonServiceException ase) {
             System.out.println("Caught an AmazonServiceException from PUT requests, rejected reasons:");

@@ -1,15 +1,22 @@
 package com.nci.prj;
 
-import java.io.IOException;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
+/**
+ * Component - CustomizeAuthenticationSuccessHandler
+ * <p>
+ * This component checks the User authorisation and maps to relevant view
+ *
+ * @author Sudhindra Joshi
+ */
 @Component
 public class CustomizeAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
@@ -22,7 +29,7 @@ public class CustomizeAuthenticationSuccessHandler implements AuthenticationSucc
         System.out.println("Inside onAuthenticationSuccess()");
 
         for (GrantedAuthority auth : authentication.getAuthorities()) {
-            System.out.println("Authority: "+auth.getAuthority());
+            System.out.println("Authority: " + auth.getAuthority());
             if ("ADMIN".equals(auth.getAuthority())) {
                 System.out.println("sendRedirect /dashboard ");
                 response.sendRedirect("/dashboard");

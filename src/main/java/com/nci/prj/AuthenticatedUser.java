@@ -6,6 +6,13 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 
+/**
+ * Class - AuthenticatedUser
+ * <p>
+ * This class maps custom User to Spring UserDetails
+ *
+ * @author Sudhindra Joshi
+ */
 public class AuthenticatedUser implements UserDetails {
     private myUser user; // user is my own model, not of spring-framework
 
