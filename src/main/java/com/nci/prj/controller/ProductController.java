@@ -417,7 +417,9 @@ public class ProductController {
         // List current buckets.
         ListMyBuckets();
 
-        s3.deleteObject(bucketName, fileName);
+        if (fileName.length() > 0) {
+            s3.deleteObject(bucketName, fileName);
+        }
 
         return modelAndView;
     }
