@@ -1,8 +1,6 @@
 package com.nci.prj.controller;
 
-import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.Bucket;
 import com.amazonaws.services.s3.model.ListObjectsV2Result;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
@@ -150,7 +148,7 @@ public class ProductController {
                         .build();
                 */
                 // List current buckets.
-                ListMyBuckets();
+                //ListMyBuckets();
 
                 //upload the file
                 CustomS3Client customS3 = new CustomS3Client();
@@ -418,6 +416,7 @@ public class ProductController {
             }
         }
 
+        /*
         s3 = AmazonS3ClientBuilder.standard()
                 .withCredentials(new ProfileCredentialsProvider())
                 .withRegion("us-east-1")
@@ -426,8 +425,15 @@ public class ProductController {
         // List current buckets.
         ListMyBuckets();
 
-        if (fileName.length() > 0) {
-            s3.deleteObject(bucketName, fileName);
+         */
+        CustomS3Client customS3 = new CustomS3Client();
+        try {
+            if (fileName.length() > 0) {
+                customS3.s3delete(bucketName, fileName);
+            }
+        }
+        catch (Exception e) {
+            System.out.println("Caught exception while deleting the S3 object: "+e);
         }
 
         return modelAndView;
@@ -495,6 +501,7 @@ public class ProductController {
                 product.get().setProdUrl(file.getOriginalFilename());
                 final File newfile = convertMultiPartFileToFile(file);
 
+                /*
                 s3 = AmazonS3ClientBuilder.standard()
                         .withCredentials(new ProfileCredentialsProvider())
                         .withRegion("us-east-1")
@@ -506,9 +513,15 @@ public class ProductController {
                 //upload the file
                 s3.putObject(bucketName, file.getOriginalFilename(), newfile);
 
+                 */
+
+                CustomS3Client customS3 = new CustomS3Client();
+                customS3.s3upload(bucketName, file.getOriginalFilename(), newfile);
+
                 if (currentSpecification.length() > 0 && !currentSpecification.equalsIgnoreCase(file.getOriginalFilename())) {
                     System.out.println("The existing specification and current specification is different. deleting earlier specification");
 
+                    /*
                     s3 = AmazonS3ClientBuilder.standard()
                             .withCredentials(new ProfileCredentialsProvider())
                             .withRegion("us-east-1")
@@ -518,6 +531,10 @@ public class ProductController {
 
                     System.out.println("The latest bucket list: ");
                     ListMyBuckets();
+
+                     */
+
+                    customS3.s3delete(bucketName, currentSpecification);
 
                 }
             }
