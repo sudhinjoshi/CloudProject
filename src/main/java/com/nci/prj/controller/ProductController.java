@@ -3,14 +3,16 @@ package com.nci.prj.controller;
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.model.*;
+import com.amazonaws.services.s3.model.Bucket;
+import com.amazonaws.services.s3.model.ListObjectsV2Result;
+import com.amazonaws.services.s3.model.S3ObjectSummary;
+import com.nci.lib.s3.CustomS3Client;
 import com.nci.prj.model.Products;
 import com.nci.prj.model.Role;
 import com.nci.prj.model.myUser;
 import com.nci.prj.repositories.ProductRepository;
 import com.nci.prj.repositories.S3Services;
 import com.nci.prj.services.CustomUserDetailsService;
-import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -76,6 +78,7 @@ public class ProductController {
         System.out.println("Inside download : " + fileName);
         //return s3Services.downloadFile(fileName);
 
+        /*
         s3 = AmazonS3ClientBuilder.standard()
                 .withCredentials(new ProfileCredentialsProvider())
                 .withRegion("us-east-1")
@@ -86,8 +89,11 @@ public class ProductController {
 
         final S3Object s3Object = s3.getObject(bucketName, fileName);
         S3ObjectInputStream objectInputStream = s3Object.getObjectContent();
+        */
+        CustomS3Client customS3 = new CustomS3Client();
 
-        byte[] bytes = IOUtils.toByteArray(objectInputStream);
+        byte[] bytes = customS3.s3download(bucketName, fileName);
+        System.out.println("downloaded the s3 object successfully");
 
         String fileName11 = URLEncoder.encode(fileName, "UTF-8").replaceAll("\\+", "%20");
 
@@ -137,16 +143,19 @@ public class ProductController {
                 product.setProdUrl(file.getOriginalFilename());
                 final File newfile = convertMultiPartFileToFile(file);
 
+                /*
                 s3 = AmazonS3ClientBuilder.standard()
                         .withCredentials(new ProfileCredentialsProvider())
                         .withRegion("us-east-1")
                         .build();
-
+                */
                 // List current buckets.
                 ListMyBuckets();
 
                 //upload the file
-                s3.putObject(bucketName, file.getOriginalFilename(), newfile);
+                CustomS3Client customS3 = new CustomS3Client();
+                customS3.s3upload(bucketName, file.getOriginalFilename(), newfile);
+                //s3.putObject(bucketName, file.getOriginalFilename(), newfile);
 
             }
         } catch (Exception e) {
