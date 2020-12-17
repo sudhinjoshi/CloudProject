@@ -74,20 +74,8 @@ public class ProductController {
 
         byte[] content = null;
         System.out.println("Inside download : " + fileName);
-        //return s3Services.downloadFile(fileName);
 
-        /*
-        s3 = AmazonS3ClientBuilder.standard()
-                .withCredentials(new ProfileCredentialsProvider())
-                .withRegion("us-east-1")
-                .build();
-
-        // List current buckets.
-        ListMyBuckets();
-
-        final S3Object s3Object = s3.getObject(bucketName, fileName);
-        S3ObjectInputStream objectInputStream = s3Object.getObjectContent();
-        */
+        //Using Custom Library
         CustomS3Client customS3 = new CustomS3Client();
 
         byte[] bytes = customS3.s3download(bucketName, fileName);
@@ -141,19 +129,9 @@ public class ProductController {
                 product.setProdUrl(file.getOriginalFilename());
                 final File newfile = convertMultiPartFileToFile(file);
 
-                /*
-                s3 = AmazonS3ClientBuilder.standard()
-                        .withCredentials(new ProfileCredentialsProvider())
-                        .withRegion("us-east-1")
-                        .build();
-                */
-                // List current buckets.
-                //ListMyBuckets();
-
-                //upload the file
+                //Using Custom Library
                 CustomS3Client customS3 = new CustomS3Client();
                 customS3.s3upload(bucketName, file.getOriginalFilename(), newfile);
-                //s3.putObject(bucketName, file.getOriginalFilename(), newfile);
 
             }
         } catch (Exception e) {
@@ -416,16 +394,7 @@ public class ProductController {
             }
         }
 
-        /*
-        s3 = AmazonS3ClientBuilder.standard()
-                .withCredentials(new ProfileCredentialsProvider())
-                .withRegion("us-east-1")
-                .build();
-
-        // List current buckets.
-        ListMyBuckets();
-
-         */
+        //Using Custom Library
         CustomS3Client customS3 = new CustomS3Client();
         try {
             if (fileName.length() > 0) {
@@ -501,39 +470,14 @@ public class ProductController {
                 product.get().setProdUrl(file.getOriginalFilename());
                 final File newfile = convertMultiPartFileToFile(file);
 
-                /*
-                s3 = AmazonS3ClientBuilder.standard()
-                        .withCredentials(new ProfileCredentialsProvider())
-                        .withRegion("us-east-1")
-                        .build();
-
-                // List current buckets.
-                ListMyBuckets();
-
-                //upload the file
-                s3.putObject(bucketName, file.getOriginalFilename(), newfile);
-
-                 */
-
+                //Using Custom Library
                 CustomS3Client customS3 = new CustomS3Client();
                 customS3.s3upload(bucketName, file.getOriginalFilename(), newfile);
 
                 if (currentSpecification.length() > 0 && !currentSpecification.equalsIgnoreCase(file.getOriginalFilename())) {
                     System.out.println("The existing specification and current specification is different. deleting earlier specification");
 
-                    /*
-                    s3 = AmazonS3ClientBuilder.standard()
-                            .withCredentials(new ProfileCredentialsProvider())
-                            .withRegion("us-east-1")
-                            .build();
-
-                    s3.deleteObject(bucketName, currentSpecification);
-
-                    System.out.println("The latest bucket list: ");
-                    ListMyBuckets();
-
-                     */
-
+                    //Using Custom Library
                     customS3.s3delete(bucketName, currentSpecification);
 
                 }
