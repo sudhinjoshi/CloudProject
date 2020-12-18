@@ -374,7 +374,7 @@ public class ProductController {
 
         Optional<Products> product = productRepository.findById(id);
         String fileName = product.get().getProdUrl();
-        System.out.println("Inside Delete: " + fileName);
+        System.out.println("Inside Delete(): " + fileName);
         productRepository.delete(product.get());
 
         ModelAndView modelAndView = new ModelAndView();
