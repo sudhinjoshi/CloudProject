@@ -73,7 +73,7 @@ public class ProductController {
     public ResponseEntity<byte[]> download(Model model, HttpServletRequest request, @PathVariable String fileName) throws IOException {
 
         byte[] content = null;
-        System.out.println("Inside download() : " + fileName);
+        System.out.println("Inside download() method: " + fileName);
 
         //Using Custom Library
         CustomS3Client customS3 = new CustomS3Client();
